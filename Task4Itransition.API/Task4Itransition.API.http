@@ -1,0 +1,6 @@
+@Task4Itransition.API_HostAddress = http://localhost:5255
+
+GET {{Task4Itransition.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
