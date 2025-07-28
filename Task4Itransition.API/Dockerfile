@@ -8,6 +8,9 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Task4Itransition.API/Task4Itransition.API.csproj", "Task4Itransition.API/"]
+COPY ["Task4Itransition.Application/Task4Itransition.Application.csproj", "Task4Itransition.Application/"]
+COPY ["Task4Itransition.Domain/Task4Itransition.Domain.csproj", "Task4Itransition.Domain/"]
+COPY ["Task4Itransition.Infrastructure/Task4Itransition.Infrastructure.csproj", "Task4Itransition.Infrastructure/"]
 RUN dotnet restore "Task4Itransition.API/Task4Itransition.API.csproj"
 COPY . .
 WORKDIR "/src/Task4Itransition.API"
