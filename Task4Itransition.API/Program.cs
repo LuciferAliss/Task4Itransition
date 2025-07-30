@@ -18,6 +18,9 @@ using Task4Itransition.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+var url = $"http://0.0.0.0:{port}";
+
 builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
@@ -107,12 +110,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using (var dbContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>())
-{
-    if (dbContext.Database.GetPendingMigrations().Any())
-    {
-        dbContext.Database.Migrate();
-    }
-}
-
-app.Run();
+app.Run(url);

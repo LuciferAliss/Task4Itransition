@@ -1,13 +1,14 @@
 services:
   api:
     build:
-      context: ..
-      dockerfile: /Task4Itransition.API/Dockerfile 
+      context: .
+      dockerfile: Dockerfile 
     ports:
       - "8080:8080"
     container_name: web_api
     depends_on:
       - db
+
   db:
     image: postgres:latest
     ports:
@@ -19,5 +20,6 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     container_name: web_db
+    
 volumes:
   db_data:
