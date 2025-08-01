@@ -39,8 +39,10 @@ public class AuthService(UserManager<User> userManager, IUserRepository userRepo
 
         if (await _userManager.IsLockedOutAsync(user))
         {
-            throw new UserBlockException("User account is locked.");
+            throw new UserBlockException("User is blocked.");
         }
+
+        user.LastLogin = DateTime.UtcNow;
 
         var (jwtToken, expiresAtUtc, refreshToken, refreshTokenExpiresAtUtc) = GenerateTokensAndUpdateUser(user);
 
@@ -73,7 +75,7 @@ public class AuthService(UserManager<User> userManager, IUserRepository userRepo
             throw new RefreshTokenException("Refresh token is missing.");
         }
 
-        var user = await _userRepository.GetUserByRefreshTokenAsync(refreshToken) ?? throw new RefreshTokenException("Unable to retrieve user for refresh token.");
+        var user = await _userRepository.GetUserByRefreshTokenAsync(refreshToken) ?? throw new RefreshTokenException($"Unable to retrieve user for refresh token. {refreshToken}.");
         if (user.RefreshTokenExpiryTimeAsUtc < DateTime.UtcNow)
         {
             throw new RefreshTokenException("Refresh token is expired.");
@@ -81,7 +83,7 @@ public class AuthService(UserManager<User> userManager, IUserRepository userRepo
 
         if (await _userManager.IsLockedOutAsync(user))
         {
-            throw new UserBlockException("User account is locked.");
+            throw new UserBlockException("User is blocked.");
         }
 
         var (jwtToken, expiresAtUtc, newRefreshToken, refreshTokenExpiresAtUtc) = GenerateTokensAndUpdateUser(user);

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Task4Itransition.Application.Abstracts.Services;
@@ -12,20 +13,26 @@ namespace Task4Itransition.API.Controllers
     {
         private readonly IUserService _userService = userService;
 
+        [HttpGet("me")]
+        public async Task<IResult> GetUser()
+        {
+            return Results.Ok(await _userService.GetUserAsync(User.FindFirstValue(ClaimTypes.NameIdentifier)!));
+        }
+
         [HttpGet("get-all-users")]
         public async Task<IResult> GetAllUsers()
         {
-            string? refreshToken = HttpContext.Request.Cookies["REFRESH_TOKEN"];
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            return Results.Ok(await _userService.GetAllUsersAsync(refreshToken!));
+            return Results.Ok(await _userService.GetAllUsersAsync(userId!));
         }
 
         [HttpDelete("delete-user")]
         public async Task<IResult> DeleteUser(UserDeleteRequest request)
         {
-            string? refreshToken = HttpContext.Request.Cookies["REFRESH_TOKEN"];
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            await _userService.DeleteUserAsync(request.Id, refreshToken!);
+            await _userService.DeleteUserAsync(request.Id, userId!);
 
             return Results.Ok();
         }
@@ -33,9 +40,9 @@ namespace Task4Itransition.API.Controllers
         [HttpPut("block-user")]
         public async Task<IResult> BlockUser(UserBlockRequest request)
         {
-            string? refreshToken = HttpContext.Request.Cookies["REFRESH_TOKEN"];
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            await _userService.BlockUserAsync(request.Id, refreshToken!);
+            await _userService.BlockUserAsync(request.Id, userId!);
 
             return Results.Ok();
         }
@@ -43,9 +50,9 @@ namespace Task4Itransition.API.Controllers
         [HttpPut("unblock-user")]
         public async Task<IResult> UnblockUser(UserUnblockRequest request)
         {
-            string? refreshToken = HttpContext.Request.Cookies["REFRESH_TOKEN"];
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            await _userService.UnblockUserAsync(request.Id, refreshToken!);
+            await _userService.UnblockUserAsync(request.Id, userId!);
 
             return Results.Ok();
         }

@@ -16,10 +16,18 @@ public class UserService(UserManager<User> userManager, IUserRepository userRepo
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IMapper _mapper = mapper;
 
-    public async Task BlockUserAsync(Guid id, string refreshToken)
+    public async Task<UserDto> GetUserAsync(string id)
     {
         var user = await _userManager.FindByIdAsync(id.ToString()) ?? throw new UserNotFoundException("User not found.");
-        await CheckBlockUserAsync(refreshToken);
+        await CheckBlockUserAsync(id);
+
+        return _mapper.Map<UserDto>(user);
+    }
+
+    public async Task BlockUserAsync(Guid id, string currentUserId)
+    {
+        var user = await _userManager.FindByIdAsync(id.ToString()) ?? throw new UserNotFoundException("User not found.");
+        await CheckBlockUserAsync(currentUserId);
 
         var result = await _userManager.SetLockoutEndDateAsync(user, DateTime.UtcNow.AddYears(1000));
 
@@ -29,10 +37,10 @@ public class UserService(UserManager<User> userManager, IUserRepository userRepo
         }
     }
 
-    public async Task UnblockUserAsync(Guid id, string refreshToken)
+    public async Task UnblockUserAsync(Guid id, string currentUserId)
     {
         var user = await _userManager.FindByIdAsync(id.ToString()) ?? throw new UserNotFoundException("User not found.");
-        await CheckBlockUserAsync(refreshToken);
+        await CheckBlockUserAsync(currentUserId);
 
         var result = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow);
 
@@ -42,24 +50,24 @@ public class UserService(UserManager<User> userManager, IUserRepository userRepo
         }
     }
 
-    public async Task DeleteUserAsync(Guid id, string refreshToken)
+    public async Task DeleteUserAsync(Guid id, string currentUserId)
     {
         var user = await _userManager.FindByIdAsync(id.ToString()) ?? throw new UserNotFoundException("User not found.");
-        await CheckBlockUserAsync(refreshToken);
+        await CheckBlockUserAsync(currentUserId);
 
         await _userManager.DeleteAsync(await _userManager.FindByIdAsync(id.ToString()) ?? throw new UserNotFoundException("User not found."));
     }
 
-    public async Task<IEnumerable<UserDto>> GetAllUsersAsync(string refreshToken)
+    public async Task<IEnumerable<UserDto>> GetAllUsersAsync(string currentUserId)
     {
-        await CheckBlockUserAsync(refreshToken);
+        await CheckBlockUserAsync(currentUserId);
 
         return _mapper.Map<IEnumerable<UserDto>>(await _userManager.Users.ToListAsync() ?? throw new UserNotFoundException("Users not found."));
     }
 
-    public async Task CheckBlockUserAsync(string refreshToken)
+    public async Task CheckBlockUserAsync(string id)
     {
-        var user = await _userRepository.GetUserByRefreshTokenAsync(refreshToken) ?? throw new UserNotFoundException("User not found.");
+        var user = await _userManager.FindByIdAsync(id) ?? throw new UserNotFoundException("User not found.");
         if (await _userManager.IsLockedOutAsync(user) && user.LockoutEnd > DateTime.UtcNow)
         {
             throw new UserBlockException("User is blocked.");

@@ -31,7 +31,7 @@ builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("CorsPolicy", options =>
     {
-        options.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:5173");
+        options.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("https://dynamic-granita-a926e2.netlify.app");
     });
 });
 

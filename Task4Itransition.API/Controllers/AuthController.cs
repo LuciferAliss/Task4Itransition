@@ -35,7 +35,7 @@ public class AuthController(IAuthService accountService, IAuthTokenProcessor _au
         return Results.Ok();
     }
 
-    [HttpPost("refresh-token")]
+    [HttpPost("refresh")]
     public async Task<IResult> RefreshToken()
     {
         string? refreshToken = HttpContext.Request.Cookies[REFRESH_TOKEN_COOKIE_NAME];
@@ -47,7 +47,6 @@ public class AuthController(IAuthService accountService, IAuthTokenProcessor _au
         return Results.Ok();
     }
 
-    [Authorize]
     [HttpPost("logout")]
     public async Task<IResult> Logout()
     {
